@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SharesAPI.Models;
 
-namespace shares_api.Controllers
+namespace SharesAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -16,16 +17,17 @@ namespace shares_api.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        [HttpGet("/{id}")]
-        public IEnumerable<Stock> Get(string id)
+        [HttpGet("{symbol}")]
+        public IEnumerable<Stock> Get(string symbol)
         {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new Stock
             {
-                datetime = DateTime.Now.AddDays(index),
-                price = rng.Next(0, 10000000),
-                name = $"Some cool stock{id}",
-                summary = Summaries[rng.Next(Summaries.Length)]
+                Symbol = symbol,
+                LastUpdated = DateTime.Now.AddDays(index),
+                Price = rng.Next(0, 10000000),
+                Name = $"Some cool stock {symbol}",
+                Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
         }
@@ -36,10 +38,11 @@ namespace shares_api.Controllers
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new Stock
             {
-                datetime = DateTime.Now.AddDays(index),
-                price = rng.Next(0, 10000000),
-                name = $"Some cool stock{rng.Next(0, 10000000)}",
-                summary = Summaries[rng.Next(Summaries.Length)]
+                Symbol = "def",
+                LastUpdated = DateTime.Now.AddDays(index),
+                Price = rng.Next(0, 10000000),
+                Name = $"Some cool stock{rng.Next(0, 10000000)}",
+                Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
         }
