@@ -9,29 +9,23 @@ namespace shares_api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class StockController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
-        }
-
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<Stock> Get()
         {
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            return Enumerable.Range(1, 5).Select(index => new Stock
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                datetime = DateTime.Now.AddDays(index),
+                price = rng.Next(0, 10000000),
+                name = $"Some cool stock{rng.Next(0, 10000000)}",
+                summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
         }
