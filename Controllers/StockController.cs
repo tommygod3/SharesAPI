@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SharesAPI.Models;
+using SharesAPI.DatabaseAccess;
 
 namespace SharesAPI.Controllers
 {
@@ -16,6 +17,13 @@ namespace SharesAPI.Controllers
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
+
+        private readonly IStockRepository _stockRepository;
+
+        public StockController(IStockRepository stockRepository)
+        {
+            _stockRepository = stockRepository;
+        }
 
         [HttpGet("{symbol}")]
         public IEnumerable<Stock> Get(string symbol)
@@ -35,16 +43,7 @@ namespace SharesAPI.Controllers
         [HttpGet]
         public IEnumerable<Stock> GetAll()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new Stock
-            {
-                Symbol = "def",
-                LastUpdated = DateTime.Now.AddDays(index),
-                Price = rng.Next(0, 10000000),
-                Name = $"Some cool stock{rng.Next(0, 10000000)}",
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return _stockRepository.GetStocks();
         }
     }
 }
