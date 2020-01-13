@@ -13,11 +13,7 @@ namespace SharesAPI.Controllers
     [Route("[controller]")]
     public class StockController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
+        private readonly string url = "https://api.worldtradingdata.com/api/v1/stock?symbol=EA,NTDOY,ATVI,SNE,MSFT&api_token=f3ISp1fZG9VtcgfmXIVCJP5TDqeJKXRunDEfvq22tHOPL3EVfoKHDYLBCOTt";
         private readonly IStockRepository _stockRepository;
 
         public StockController(IStockRepository stockRepository)
@@ -26,24 +22,23 @@ namespace SharesAPI.Controllers
         }
 
         [HttpGet("{symbol}")]
-        public IEnumerable<Stock> Get(string symbol)
+        public Stock Get(string symbol)
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new Stock
-            {
-                Symbol = symbol,
-                LastUpdated = DateTime.Now.AddDays(index),
-                Price = rng.Next(0, 10000000),
-                Name = $"Some cool stock {symbol}",
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            // Update symbol stock
+            return _stockRepository.GetStock(symbol);
         }
 
         [HttpGet]
         public IEnumerable<Stock> GetAll()
         {
+            // Update all stock
             return _stockRepository.GetStocks();
+        }
+
+        [HttpDelete("{symbol}")]
+        public void Delete(string symbol)
+        {
+            _stockRepository.Delete(symbol);
         }
     }
 }

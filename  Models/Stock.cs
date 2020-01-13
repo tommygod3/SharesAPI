@@ -9,7 +9,7 @@ namespace SharesAPI.Models
         public string Symbol { get; set; }
         public string Name { get; set; }
         public DateTime LastUpdated { get; set; }
-        public int Price { get; set; }
-        public string Summary { get; set; }
+        public double Price { get; set; }
+        public int NumberAvailable { get; set; }
     }
 }
