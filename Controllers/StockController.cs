@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SharesAPI.Models;
 using SharesAPI.DatabaseAccess;
+using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Text.Json;
 
 namespace SharesAPI.Controllers
 {
@@ -13,7 +16,7 @@ namespace SharesAPI.Controllers
     [Route("[controller]")]
     public class StockController : ControllerBase
     {
-        private readonly string url = "https://api.worldtradingdata.com/api/v1/stock?symbol=EA,NTDOY,ATVI,SNE,MSFT&api_token=f3ISp1fZG9VtcgfmXIVCJP5TDqeJKXRunDEfvq22tHOPL3EVfoKHDYLBCOTt";
+        
         private readonly IStockRepository _stockRepository;
 
         public StockController(IStockRepository stockRepository)
@@ -21,24 +24,36 @@ namespace SharesAPI.Controllers
             _stockRepository = stockRepository;
         }
 
-        [HttpGet("{symbol}")]
-        public Stock Get(string symbol)
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
         {
-            // Update symbol stock
-            return _stockRepository.GetStock(symbol);
+            bool outOfDate = false;
+            IEnumerable<Stock> allStock = _stockRepository.GetStocks();
+            foreach (Stock stock in allStock)
+            {
+                if ((DateTime.Now - stock.LastUpdated).TotalMinutes > 10)
+                {
+                    outOfDate = true;
+                    break;
+                }
+            }
+            if (outOfDate || allStock.Count() == 0) await _stockRepository.UpdateAllStockAsync();
+            return Ok(_stockRepository.GetStocks());
         }
 
-        [HttpGet]
-        public IEnumerable<Stock> GetAll()
+        [HttpGet("{symbol}")]
+        public async Task<IActionResult> GetAsync(string symbol)
         {
-            // Update all stock
-            return _stockRepository.GetStocks();
+            Stock stock = _stockRepository.GetStock(symbol);
+            if (stock == null) return NotFound($"No stock exists with symbol: {symbol}");
+            if ((DateTime.Now - stock.LastUpdated).TotalMinutes > 1) await _stockRepository.UpdateAllStockAsync();
+            return Ok(_stockRepository.GetStock(symbol));
         }
 
         [HttpDelete("{symbol}")]
-        public void Delete(string symbol)
+        public IActionResult Delete(string symbol)
         {
-            _stockRepository.Delete(symbol);
+            return Ok(_stockRepository.Delete(symbol));
         }
     }
 }

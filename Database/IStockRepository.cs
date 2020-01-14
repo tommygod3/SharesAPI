@@ -10,5 +10,7 @@ namespace SharesAPI.DatabaseAccess
         Stock Add(Stock stock);
         Stock Update(Stock stockChanges);
         Stock Delete(string symbol);
+        Stock AddOrUpdateStock(Stock newStockItem);
+        System.Threading.Tasks.Task UpdateAllStockAsync();
     }
 }
