@@ -25,22 +25,15 @@ namespace SharesAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ExpressDBConnection"))); //If there is already an instance of AppDbContext in pool, use this instance, instead of creating a new one.
-            //Create options to use SqlServer
-            //Get Connection String set in appsettings.json
 
             //Dependency Injection of the SqlRepo implementation for SqlStockRepository
             //Want SqlStockRepository to be available through the entire scope of a given HTTP request
             //When a new request is made, we want a new instance of SqlStockRepostory completed
             services.AddScoped<IStockRepository, SqlStockRepositroy>();
 
-            //Differences between AddTransient, AddScoped and AddSingleton at:
-            //https://www.youtube.com/watch?v=v6Nr7Zman_Y&list=PL6n9fhu94yhVkdrusLaQsfERmL_Jh4XmU&index=44
-
-            //https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-3.0&tabs=visual-studio
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Stock API", Version = "V1" });
@@ -49,7 +42,6 @@ namespace SharesAPI
             services.AddControllers();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -71,7 +63,6 @@ namespace SharesAPI
             var swaggerOptions = new SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
 
-            //Requirese Swashbuckle.AspNetCore nuget package For netcore 3 requires 5.0.0-rc4
             app.UseSwagger(option =>
             {
                 option.RouteTemplate = swaggerOptions.JsonRoute;

@@ -33,16 +33,12 @@ namespace SharesAPI.DatabaseAccess
 
         public IEnumerable<Stock> GetStocks()
         {
-            //return Context.Employees; This returns the Stock within the Employee class as null
             return Context.Stocks;
-            //^Example of eager loading. This will ensure the Stock is populated
-            //.Include() can be chained to eager load multiple objects.
         }
 
         public Stock GetStock(string symbol)
         {
             return Context.Stocks.FirstOrDefault(s => s.Symbol == symbol);
-            //Include Stocks, Filter using LINQ on symbol, get first
         }
 
 

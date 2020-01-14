@@ -5,7 +5,6 @@ namespace SharesAPI.DatabaseAccess
 {
     public class AppDbContext : DbContext
     {
-        //passes options to overloaded base implementation
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
