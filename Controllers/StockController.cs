@@ -47,7 +47,7 @@ namespace SharesAPI.Controllers
             {
                 if (currency != stock.Currency)
                 {
-                    double? convertedPrice = await CurrencyAPI.ConvertAsync(currency, stock.Price);
+                    double? convertedPrice = await CurrencyAPI.ConvertAsync(stock.Currency, currency, stock.Price);
                     if (convertedPrice.HasValue)
                     {
                         stock.Currency = currency;
@@ -71,7 +71,7 @@ namespace SharesAPI.Controllers
             Stock updatedStock = _stockRepository.GetStock(symbol);
             if (currency != updatedStock.Currency)
             {
-                double? convertedPrice = await CurrencyAPI.ConvertAsync(currency, updatedStock.Price);
+                double? convertedPrice = await CurrencyAPI.ConvertAsync(updatedStock.Currency, currency, updatedStock.Price);
                 if (convertedPrice.HasValue)
                 {
                     updatedStock.Currency = currency;

@@ -6,9 +6,9 @@ namespace SharesAPI.Currency
     public class CurrencyAPI
     {
         public double rate { get; set; }
-        public static async System.Threading.Tasks.Task<double?> ConvertAsync(string currency, double value)
+        public static async System.Threading.Tasks.Task<double?> ConvertAsync(string fromCurrency, string toCurrency, double value)
         {
-            string url = $"http://127.0.0.1:8000/currency/{currency}/?format=json&source=USD";
+            string url = $"http://127.0.0.1:8000/currency/{toCurrency}/?format=json&source={fromCurrency}";
             using (HttpClient client = new HttpClient())
             {
                 try
@@ -19,14 +19,12 @@ namespace SharesAPI.Currency
                     if (response.IsSuccessStatusCode)
                     {
                         CurrencyAPI content = response.Content.ReadAsAsync<CurrencyAPI>().Result;
-                        System.Console.WriteLine(content.rate);
                         return content.rate * value;
                     }
                     else return null;
                 }
-                catch (System.Net.Http.HttpRequestException e)
+                catch (Exception)
                 {
-                    Console.WriteLine(e);
                     return null;
                 }
             }
