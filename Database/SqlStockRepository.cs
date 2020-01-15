@@ -82,15 +82,23 @@ namespace SharesAPI.DatabaseAccess
             string url = "https://api.worldtradingdata.com/api/v1/stock?symbol=EA,NTDOY,ATVI,SNE,MSFT&api_token=f3ISp1fZG9VtcgfmXIVCJP5TDqeJKXRunDEfvq22tHOPL3EVfoKHDYLBCOTt";
             using (HttpClient client = new HttpClient())
             {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    ApiResponse content = response.Content.ReadAsAsync<ApiResponse>().Result;
-                    foreach (Stock stock in content.Data)
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+                    if (response.IsSuccessStatusCode)
                     {
-                        AddOrUpdateStock(stock);
+                        ApiResponse content = response.Content.ReadAsAsync<ApiResponse>().Result;
+                        foreach (Stock stock in content.Data)
+                        {
+                            AddOrUpdateStock(stock);
+                        }
                     }
+                }
+                catch (Exception)
+                {
+
                 }
             }
         }
