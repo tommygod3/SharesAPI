@@ -1,3 +1,4 @@
+using SharesAPI.ExternalAPI;
 using SharesAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -89,7 +90,7 @@ namespace SharesAPI.DatabaseAccess
                     response.EnsureSuccessStatusCode();
                     if (response.IsSuccessStatusCode)
                     {
-                        ApiResponse content = response.Content.ReadAsAsync<ApiResponse>().Result;
+                        StockAPI content = response.Content.ReadAsAsync<StockAPI>().Result;
                         foreach (Stock stock in content.Data)
                         {
                             AddOrUpdateStock(stock);
