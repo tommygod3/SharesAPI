@@ -28,7 +28,7 @@ namespace SharesAPI.Controllers
 
         [ProducesResponseType(typeof(List<Stock>), 200)]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery] string currency)
         {
             bool outOfDate = false;
             IEnumerable<Stock> allStock = _stockRepository.GetStocks();
@@ -41,7 +41,22 @@ namespace SharesAPI.Controllers
                 }
             }
             if (outOfDate || allStock.Count() == 0) await _stockRepository.UpdateAllStockAsync();
-            return Ok(_stockRepository.GetStocks());
+
+            IEnumerable<Stock> updatedStocks = _stockRepository.GetStocks();
+            foreach(Stock stock in updatedStocks)
+            {
+                if (currency != stock.Currency)
+                {
+                    double? convertedPrice = await CurrencyAPI.ConvertAsync(currency, stock.Price);
+                    if (convertedPrice.HasValue)
+                    {
+                        stock.Currency = currency;
+                        stock.Price = convertedPrice.Value;
+                    }
+                }
+            }
+            
+            return Ok(updatedStocks);
         }
 
         [ProducesResponseType(typeof(Stock), 200)]
