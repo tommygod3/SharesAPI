@@ -9,6 +9,7 @@ using SharesAPI.DatabaseAccess;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace SharesAPI.Controllers
 {
@@ -24,6 +25,7 @@ namespace SharesAPI.Controllers
             _stockRepository = stockRepository;
         }
 
+        [ProducesResponseType(typeof(List<Stock>), 200)]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -41,6 +43,8 @@ namespace SharesAPI.Controllers
             return Ok(_stockRepository.GetStocks());
         }
 
+        [ProducesResponseType(typeof(Stock), 200)]
+        [ProducesResponseType(typeof(string), 404)]
         [HttpGet("{symbol}")]
         public async Task<IActionResult> GetAsync(string symbol)
         {
@@ -50,10 +54,14 @@ namespace SharesAPI.Controllers
             return Ok(_stockRepository.GetStock(symbol));
         }
 
+        [ProducesResponseType(typeof(Stock), 200)]
+        [ProducesResponseType(typeof(string), 404)]
         [HttpDelete("{symbol}")]
         public IActionResult Delete(string symbol)
         {
-            return Ok(_stockRepository.Delete(symbol));
+            Stock deleted = _stockRepository.Delete(symbol);
+            if (deleted == null) return NotFound($"No stock exists with symbol: {symbol}");
+            else return Ok(deleted);
         }
     }
 }
