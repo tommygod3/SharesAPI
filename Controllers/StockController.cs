@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using SharesAPI.Currency;
 
 namespace SharesAPI.Controllers
 {
@@ -46,12 +47,23 @@ namespace SharesAPI.Controllers
         [ProducesResponseType(typeof(Stock), 200)]
         [ProducesResponseType(typeof(string), 404)]
         [HttpGet("{symbol}")]
-        public async Task<IActionResult> GetAsync(string symbol)
+        public async Task<IActionResult> GetAsync([FromRoute] string symbol, [FromQuery] string currency)
         {
             Stock stock = _stockRepository.GetStock(symbol);
             if (stock == null) return NotFound($"No stock exists with symbol: {symbol}");
             if ((DateTime.Now - stock.LastUpdated).TotalMinutes > 1) await _stockRepository.UpdateAllStockAsync();
-            return Ok(_stockRepository.GetStock(symbol));
+
+            Stock updatedStock = _stockRepository.GetStock(symbol);
+            if (currency != updatedStock.Currency)
+            {
+                double? convertedPrice = await CurrencyAPI.ConvertAsync(currency, updatedStock.Price);
+                if (convertedPrice.HasValue)
+                {
+                    updatedStock.Currency = currency;
+                    updatedStock.Price = convertedPrice.Value;
+                }
+            }
+            return Ok(updatedStock);
         }
 
         [ProducesResponseType(typeof(Stock), 200)]
