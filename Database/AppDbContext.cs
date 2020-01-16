@@ -11,5 +11,6 @@ namespace SharesAPI.DatabaseAccess
         }
 
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

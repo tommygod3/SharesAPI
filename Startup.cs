@@ -33,6 +33,7 @@ namespace SharesAPI
             //Want SqlStockRepository to be available through the entire scope of a given HTTP request
             //When a new request is made, we want a new instance of SqlStockRepostory completed
             services.AddScoped<IStockRepository, SqlStockRepositroy>();
+            services.AddScoped<IUserRepository, SqlUserRepository>();
 
             services.AddSwaggerGen(x =>
             {
