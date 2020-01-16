@@ -77,25 +77,38 @@ namespace SharesAPI.DatabaseAccess
 
             user.Wallet -= stock.Price * quantity;
 
-            bool updated = false;
-            if (user.StockOwned == null)
-            foreach (StockOwnership ownership in user.StockOwned)
+
+            StockOwnership ownership = user.StockOwned.FirstOrDefault(o => o.Symbol == stock.Symbol);
+            if (ownership == null)
             {
-                if (ownership.Symbol == stock.Symbol)
-                {
-                    updated = true;
-                    StockOwnership existingOwnership = Context.StockOwnerships.FirstOrDefault(o => o.Id == ownership.Id);
-                    existingOwnership.AmountOwned += quantity;
-                }
+                StockOwnership newOwnership = new StockOwnership();
+                newOwnership.Symbol = stock.Symbol;
+                newOwnership.AmountOwned = quantity;
+                Context.StockOwnerships.Add(newOwnership);
+                user.StockOwned.Add(newOwnership);
             }
-            if (!updated)
+            else
             {
-                StockOwnership ownership = new StockOwnership();
-                ownership.Symbol = stock.Symbol;
-                ownership.AmountOwned = quantity;
-                Context.StockOwnerships.Add(ownership);
-                user.StockOwned.Add(ownership);
+                StockOwnership existingOwnership = Context.StockOwnerships.FirstOrDefault(o => o.Id == ownership.Id);
+                existingOwnership.AmountOwned += quantity;
             }
+
+            Context.SaveChanges();
+            User updatedUser = GetUser(username);
+            return updatedUser;
+        }
+
+        public User SellStock(string username, Stock stock, int quantity)
+        {
+            User user = GetUser(username);
+
+            user.Wallet += stock.Price * quantity;
+
+            StockOwnership ownership = user.StockOwned.FirstOrDefault(o => o.Symbol == stock.Symbol);
+            StockOwnership existingOwnership = Context.StockOwnerships.FirstOrDefault(o => o.Id == ownership.Id);
+            existingOwnership.AmountOwned -= quantity;
+            if (existingOwnership.AmountOwned == 0) user.StockOwned.Remove(existingOwnership);
+
             Context.SaveChanges();
             User updatedUser = GetUser(username);
             return updatedUser;
