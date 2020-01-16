@@ -10,6 +10,6 @@ namespace SharesAPI.Models
         public string Username { get; set; }
         public string Password { get; set; }
         public double Wallet { get; set; }
-        public IEnumerable<StockOwnership> StockOwned{ get; set; }
+        public List<StockOwnership> StockOwned{ get; set; }
     }
 }

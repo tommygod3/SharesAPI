@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SharesAPI.ExternalAPI;
 using SharesAPI.Models;
 using SharesAPI.Requests;
@@ -19,12 +20,12 @@ namespace SharesAPI.DatabaseAccess
 
         public User GetUser(string username)
         {
-            return Context.Users.FirstOrDefault(s => s.Username == username);
+            return Context.Users.Include(own => own.StockOwned).FirstOrDefault(s => s.Username == username);
         }
     
         public User AuthenticateUser(string username, string password)
         {
-            User claimedUser = Context.Users.FirstOrDefault(s => s.Username == username);
+            User claimedUser = GetUser(username);
             if (claimedUser.Password != password) return null;
             return claimedUser;
         }
@@ -35,6 +36,7 @@ namespace SharesAPI.DatabaseAccess
             newUser.Username = User.Username;
             newUser.Password = User.Password;
             newUser.Wallet = 1000;
+            newUser.StockOwned = new List<StockOwnership>();
 
             Context.Users.Add(newUser);
             Context.SaveChanges();
@@ -58,13 +60,45 @@ namespace SharesAPI.DatabaseAccess
 
         public User Delete(string username)
         {
-            User User = Context.Users.FirstOrDefault(s => s.Username == username);
+            User User = GetUser(username);
             if (User != null)
             {
                 Context.Users.Remove(User);
-                Context.SaveChanges();   
+                Context.SaveChanges();
             }
             return User;
+        }
+
+        public User PurchaseStock(string username, Stock stock, int quantity)
+        {
+            User user = GetUser(username);
+
+            if (user.Wallet - (stock.Price * quantity) < 0) return null;
+
+            user.Wallet -= stock.Price * quantity;
+
+            bool updated = false;
+            if (user.StockOwned == null)
+            foreach (StockOwnership ownership in user.StockOwned)
+            {
+                if (ownership.Symbol == stock.Symbol)
+                {
+                    updated = true;
+                    StockOwnership existingOwnership = Context.StockOwnerships.FirstOrDefault(o => o.Id == ownership.Id);
+                    existingOwnership.AmountOwned += quantity;
+                }
+            }
+            if (!updated)
+            {
+                StockOwnership ownership = new StockOwnership();
+                ownership.Symbol = stock.Symbol;
+                ownership.AmountOwned = quantity;
+                Context.StockOwnerships.Add(ownership);
+                user.StockOwned.Add(ownership);
+            }
+            Context.SaveChanges();
+            User updatedUser = GetUser(username);
+            return updatedUser;
         }
     }
 }

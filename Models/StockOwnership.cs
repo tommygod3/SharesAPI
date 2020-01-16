@@ -10,8 +10,9 @@ namespace SharesAPI.Models
         [Key]
         public Guid Id { get; set; }
         [ForeignKey("Symbol")]
-        public string StockName{ get; set; }
-        public string AmountOwned{ get; set; }
+        public string Symbol{ get; set; }
+        public int AmountOwned{ get; set; }
+        
         public StockOwnership()
         {
             Id = Guid.NewGuid();
