@@ -11,7 +11,7 @@ using System.Net.Http.Formatting;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using SharesAPI.ExternalAPI;
-using SharesAPI.Requests;
+using SharesAPI.Contracts;
 
 namespace SharesAPI.Controllers
 {
@@ -39,7 +39,7 @@ namespace SharesAPI.Controllers
             if (user == null) return NotFound($"No user exists with username: {username}");
             User authenticatedUser = _userRepository.AuthenticateUser(username, password);
             if (authenticatedUser == null) return Forbid("Username and password do not match");
-            return Ok(authenticatedUser);
+            return Ok(new UserResponse(authenticatedUser));
         }
 
         [ProducesResponseType(typeof(User), 200)]
@@ -49,7 +49,23 @@ namespace SharesAPI.Controllers
         {
             User createdUser = _userRepository.Add(user);
             if (createdUser == null) return BadRequest("Bad request");
-            return Ok(createdUser);
+            return Ok(new UserResponse(createdUser));
+        }
+
+        [ProducesResponseType(typeof(User), 200)]
+        [ProducesResponseType(typeof(string), 403)]
+        [ProducesResponseType(typeof(string), 404)]
+        [HttpDelete()]
+        public IActionResult Delete()
+        {
+            string username = Request.Headers["username"];
+            string password = Request.Headers["password"];
+            User user = _userRepository.GetUser(username);
+            if (user == null) return NotFound($"No user exists with username: {username}");
+            User authenticatedUser = _userRepository.AuthenticateUser(username, password);
+            if (authenticatedUser == null) return Forbid("Username and password do not match");
+            _userRepository.Delete(authenticatedUser.Username);
+            return Ok(new UserResponse(authenticatedUser));
         }
     }
 }

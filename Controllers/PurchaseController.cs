@@ -11,7 +11,7 @@ using System.Net.Http.Formatting;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using SharesAPI.ExternalAPI;
-using SharesAPI.Requests;
+using SharesAPI.Contracts;
 
 namespace SharesAPI.Controllers
 {

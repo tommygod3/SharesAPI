@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SharesAPI.ExternalAPI;
 using SharesAPI.Models;
-using SharesAPI.Requests;
+using SharesAPI.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

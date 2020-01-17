@@ -1,5 +1,5 @@
 using SharesAPI.Models;
-using SharesAPI.Requests;
+using SharesAPI.Contracts;
 using System.Collections.Generic;
 
 namespace SharesAPI.DatabaseAccess
