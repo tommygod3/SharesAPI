@@ -40,8 +40,7 @@ namespace SharesAPI.Controllers
             string password = Request.Headers["password"];
             User user = _userRepository.GetUser(username);
             if (user == null) return NotFound($"No user exists with username: {username}");
-            User authenticatedUser = _userRepository.AuthenticateUser(username, password);
-            if (authenticatedUser == null) return Forbid("Username and password do not match");
+            if (!_userRepository.VerifyPassword(username, password)) return Forbid("Username and password do not match");
             Stock stock = _stockRepository.GetStock(createPurchaseRequest.Symbol);
             if (stock == null) return NotFound($"No stock exists with symbol: {createPurchaseRequest.Symbol}");
 

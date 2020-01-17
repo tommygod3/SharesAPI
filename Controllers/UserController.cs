@@ -37,9 +37,8 @@ namespace SharesAPI.Controllers
             string password = Request.Headers["password"];
             User user = _userRepository.GetUser(username);
             if (user == null) return NotFound($"No user exists with username: {username}");
-            User authenticatedUser = _userRepository.AuthenticateUser(username, password);
-            if (authenticatedUser == null) return Forbid("Username and password do not match");
-            return Ok(new UserResponse(authenticatedUser));
+            if (!_userRepository.VerifyPassword(username, password)) return Forbid("Username and password do not match");
+            return Ok(new UserResponse(user));
         }
 
         [ProducesResponseType(typeof(User), 200)]
@@ -48,7 +47,7 @@ namespace SharesAPI.Controllers
         public IActionResult Create([FromBody] CreateUserRequest user)
         {
             User createdUser = _userRepository.Add(user);
-            if (createdUser == null) return BadRequest("Bad request");
+            if (createdUser == null) return BadRequest($"User with username {user.Username} already exists");
             return Ok(new UserResponse(createdUser));
         }
 
@@ -62,10 +61,9 @@ namespace SharesAPI.Controllers
             string password = Request.Headers["password"];
             User user = _userRepository.GetUser(username);
             if (user == null) return NotFound($"No user exists with username: {username}");
-            User authenticatedUser = _userRepository.AuthenticateUser(username, password);
-            if (authenticatedUser == null) return Forbid("Username and password do not match");
-            _userRepository.Delete(authenticatedUser.Username);
-            return Ok(new UserResponse(authenticatedUser));
+            if (!_userRepository.VerifyPassword(username, password)) return Forbid("Username and password do not match");
+            _userRepository.Delete(user.Username);
+            return Ok(new UserResponse(user));
         }
     }
 }
