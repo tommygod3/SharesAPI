@@ -36,6 +36,7 @@ namespace SharesAPI.Controllers
         [HttpPost()]
         public IActionResult Create([FromBody] CreateTransactionRequest createPurchaseRequest)
         {
+            if (createPurchaseRequest.Quantity < 1) return BadRequest($"Cannot purchase negative quantity");
             string username = Request.Headers["username"];
             string password = Request.Headers["password"];
             User user = _userRepository.GetUser(username);
