@@ -47,13 +47,14 @@ namespace SharesAPI.Controllers
             if (stock.NumberAvailable - createPurchaseRequest.Quantity < 0) 
                 return BadRequest($"We only have {stock.NumberAvailable} remaining of Stock {createPurchaseRequest.Symbol}!");
 
-            stock.NumberAvailable -= createPurchaseRequest.Quantity;
-            Stock updatedStock = _stockRepository.Update(stock);
 
-            User updatedUser = _userRepository.PurchaseStock(user.Username, updatedStock, createPurchaseRequest.Quantity);
-            if (updatedStock == null) 
+
+            User updatedUser = _userRepository.PurchaseStock(user.Username, stock, createPurchaseRequest.Quantity);
+            if (stock == null) 
                 return BadRequest($"You do not have enough funds to complete this purchase");
 
+            stock.NumberAvailable -= createPurchaseRequest.Quantity;
+            Stock updatedStock = _stockRepository.Update(stock);
             return Ok(updatedUser);
         }
     }
