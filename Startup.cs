@@ -49,6 +49,9 @@ namespace SharesAPI
                 builder =>
                 {
                     builder.AllowAnyOrigin();
+                    builder.AllowAnyMethod();
+                    builder.AllowAnyHeader();
+
                 });
             });
 
