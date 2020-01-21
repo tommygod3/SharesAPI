@@ -49,12 +49,13 @@ namespace SharesAPI.Controllers
 
 
 
-            User updatedUser = _userRepository.PurchaseStock(user.Username, stock, createPurchaseRequest.Quantity);
-            if (stock == null) 
+            if (user.Wallet - (createPurchaseRequest.Quantity * stock.Price) < 0) 
                 return BadRequest($"You do not have enough funds to complete this purchase");
 
             stock.NumberAvailable -= createPurchaseRequest.Quantity;
             Stock updatedStock = _stockRepository.Update(stock);
+            User updatedUser = _userRepository.PurchaseStock(user.Username, updatedStock, createPurchaseRequest.Quantity);          
+
             return Ok(updatedUser);
         }
     }
