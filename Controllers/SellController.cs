@@ -31,7 +31,6 @@ namespace SharesAPI.Controllers
 
         [ProducesResponseType(typeof(User), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(string), 403)]
         [ProducesResponseType(typeof(string), 404)]
         [HttpPost()]
         public IActionResult Create([FromBody] CreateTransactionRequest createSellRequest)
@@ -41,7 +40,7 @@ namespace SharesAPI.Controllers
             string password = Request.Headers["password"];
             User user = _userRepository.GetUser(username);
             if (user == null) return NotFound($"No user exists with username: {username}");
-            if (!_userRepository.VerifyPassword(username, password)) return Forbid("Username and password do not match");
+            if (!_userRepository.VerifyPassword(username, password)) return BadRequest("Username and password do not match");
             Stock stock = _stockRepository.GetStock(createSellRequest.Symbol);
             if (stock == null) return NotFound($"No stock exists with symbol: {createSellRequest.Symbol}");
 
